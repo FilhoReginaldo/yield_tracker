@@ -1,6 +1,5 @@
 ﻿using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Yield.Tracker.Api.Controllers;
 

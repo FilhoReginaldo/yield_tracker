@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
-using Yield.Tracker.Domain.Entities.Validator;
-using Yield.Tracker.Domain.Entities;
 using Xunit;
+using Yield.Tracker.Domain.Entities;
+using Yield.Tracker.Domain.Entities.Validator;
 
 namespace Yield.Tracker.Unit.Test.Entities;
 

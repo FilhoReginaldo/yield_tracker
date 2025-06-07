@@ -8,7 +8,7 @@ public static class QuotationEntityTest
         new Quotation(1, new DateOnly(2025, 1, 1), "CDI", 12.5m);
 
     public static List<Quotation> QuotationListDefault() =>
-        new List<Quotation> 
+        new List<Quotation>
         {
             new Quotation(1, new DateOnly(2025, 1, 1), "CDI", 12.5m),
             new Quotation(2, new DateOnly(2025, 1, 2), "CDI", 12.0m),

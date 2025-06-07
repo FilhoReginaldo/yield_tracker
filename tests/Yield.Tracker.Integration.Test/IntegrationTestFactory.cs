@@ -16,7 +16,7 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            
+
             var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
 

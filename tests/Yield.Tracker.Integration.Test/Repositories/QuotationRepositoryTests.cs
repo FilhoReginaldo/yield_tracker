@@ -1,12 +1,12 @@
-﻿using System;
+﻿using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using FluentAssertions;
 using Yield.Tracker.Infra.Data.Context;
 using Yield.Tracker.Infra.Data.Repositories;
 using Yield.Tracker.Test.Shared.Entities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Yield.Tracker.Integration.Test.Repositories;
 

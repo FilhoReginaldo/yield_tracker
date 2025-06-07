@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
-using ErrorOr;
+﻿using ErrorOr;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using Yield.Tracker.Infra.Ioc.Middleware.Exceptions;
 
 namespace Yield.Tracker.Infra.Ioc.Middleware;

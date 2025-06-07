@@ -1,10 +1,10 @@
 ﻿using ErrorOr;
+using Microsoft.Extensions.Logging;
 using Yield.Tracker.Domain.Dto.Investment;
 using Yield.Tracker.Domain.Dto.Validator;
+using Yield.Tracker.Domain.Dto.Validator.Common;
 using Yield.Tracker.Domain.Repositories;
 using Yield.Tracker.Domain.Services;
-using Yield.Tracker.Domain.Dto.Validator.Common;
-using Microsoft.Extensions.Logging;
 
 namespace Yield.Tracker.Application.Services;
 
@@ -21,7 +21,7 @@ public class InvestmentCalculatorService(IQuotationRepository quotationRepositor
             logger.LogError("Validação falhou para a requisição: {Errors}", validation);
             return validation;
         }
-            
+
         // Obter todas as cotações necessárias (incluindo a do dia anterior ao período de cálculo)
         var allQuotations = await quotationRepository.GetByDateRangeAsync(
             investmentRequest.StartDate.AddDays(-1),
@@ -33,7 +33,7 @@ public class InvestmentCalculatorService(IQuotationRepository quotationRepositor
             logger.LogError("Nenhuma cotação encontrada para o período de {StartDate} a {EndDate}", investmentRequest.StartDate, investmentRequest.EndDate);
             return Error.Validation("cotacao.NaoEncontrada", "Não foram encontradas cotações no período informado.");
         }
-            
+
         // Ordenar as cotações por data, para garantir um calculo correto
         var orderedQuotations = allQuotations.OrderBy(q => q.Date).ToList();
 
@@ -59,7 +59,7 @@ public class InvestmentCalculatorService(IQuotationRepository quotationRepositor
                 logger.LogError("Cotação não encontrada para o dia anterior {PreviousBusinessDay}", previousBusinessDay);
                 return Error.Validation("cotacao.DiaAnteriorNaoEncontrada", $"Cotação para o dia anterior {previousBusinessDay} não encontrada.");
             }
-                
+
             // Calcular fator diário
             double dailyRate = (double)previousQuotation.Rate / 100.0;
             double dailyFactor = Math.Pow(1 + dailyRate, 1.0 / 252.0);

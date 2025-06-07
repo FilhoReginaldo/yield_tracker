@@ -1,5 +1,5 @@
-using Yield.Tracker.Infra.Ioc.Middleware;
 using Yield.Tracker.Infra.Ioc;
+using Yield.Tracker.Infra.Ioc.Middleware;
 
 namespace Yield.Tracker.Api;
 

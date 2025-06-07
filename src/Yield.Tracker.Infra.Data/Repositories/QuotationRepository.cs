@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Yield.Tracker.Domain.Entities;
 using Yield.Tracker.Domain.Repositories;
 using Yield.Tracker.Infra.Data.Context;

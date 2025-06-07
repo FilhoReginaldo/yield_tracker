@@ -73,7 +73,7 @@ namespace Yield.Tracker.Unit.Test.Services
             #region Arrange
             var request = InvestmentRequestDtoTests.InvestmentRequestDtoDefault(1000);
             var quotations = QuotationEntityTest.QuotationListDefault();
-            
+
             _quotationRepositoryMock
                 .Setup(repo => repo.GetByDateRangeAsync(It.IsAny<DateOnly>(), It.IsAny<DateOnly>()))
                 .ReturnsAsync(quotations);

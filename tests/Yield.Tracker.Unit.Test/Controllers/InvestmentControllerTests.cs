@@ -8,7 +8,7 @@ using Yield.Tracker.Domain.Dto.Investment;
 using Yield.Tracker.Domain.Services;
 using Yield.Tracker.Test.Shared.Dto;
 
-namespace Yield.Tracker.Unit.Test.Controller;
+namespace Yield.Tracker.Unit.Test.Controllers;
 
 public class InvestmentControllerTests
 {
@@ -49,7 +49,7 @@ public class InvestmentControllerTests
     {
         #region Arrange
         var mockService = new Mock<IInvestmentCalculatorService>();
-        var request = InvestmentRequestDtoTests.InvestmentRequestDtoDefault(); 
+        var request = InvestmentRequestDtoTests.InvestmentRequestDtoDefault();
         var error = Error.Validation("InvestedValue", "O valor investido deve ser maior que zero.");
 
         mockService

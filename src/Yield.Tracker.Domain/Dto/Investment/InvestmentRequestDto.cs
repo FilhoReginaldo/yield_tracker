@@ -2,7 +2,7 @@
 
 public record InvestmentRequestDto
 (
-    decimal InvestedValue, 
-    DateOnly StartDate, 
+    decimal InvestedValue,
+    DateOnly StartDate,
     DateOnly EndDate
 );
