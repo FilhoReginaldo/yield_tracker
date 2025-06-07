@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Yield.Tracker.Unit.Test")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a2d5f2f8b21061e5e94dc6c7e9dc4fb27b5a16e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d82727480e9a3a86fd2c27531d05620775f72b36")]
 [assembly: System.Reflection.AssemblyProductAttribute("Yield.Tracker.Unit.Test")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Yield.Tracker.Unit.Test")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

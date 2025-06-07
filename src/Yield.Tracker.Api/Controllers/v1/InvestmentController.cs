@@ -8,6 +8,6 @@ namespace Yield.Tracker.Api.Controllers.v1;
 public class InvestmentController(IInvestmentCalculatorService investmentCalculatorService) : ApiControllerBase
 {
     [HttpPost("calculate")]
-    public async Task<ActionResult<InvestmentResponseDto>> Calculate(InvestmentRequestDto investmentRequest) =>
+    public async Task<ActionResult<InvestmentResponseDto>> Calculate([FromBody]InvestmentRequestDto investmentRequest) =>
         FromErrorOr(await investmentCalculatorService.CalculateAsync(investmentRequest));
 }

@@ -10,32 +10,42 @@ public abstract class ApiControllerBase : ControllerBase
     {
         return result.Match(
             value => Ok(value),
-            errors => Problem(errors)
-        );
+            errors => Problem(errors));
     }
 
-    private ActionResult Problem(List<Error> errors)
+    protected ActionResult Problem(List<Error> errors)
     {
-        if (errors.All(e => e.Type == ErrorType.Validation))
+        if (errors == null || errors.Count == 0)
         {
-            var modelState = new ModelStateDictionary();
-            foreach (var error in errors)
-                modelState.AddModelError(error.Code, error.Description);
-
-            return ValidationProblem(modelState);
+            return Problem();
         }
 
         var firstError = errors[0];
-        var statusCode = firstError.Type switch
+        var statusCode = MapErrorToStatusCode(firstError);
+
+        var problemDetails = new ProblemDetails
         {
-            ErrorType.Conflict => StatusCodes.Status409Conflict,
-            ErrorType.NotFound => StatusCodes.Status404NotFound,
-            ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
-            ErrorType.Forbidden => StatusCodes.Status403Forbidden,
-            ErrorType.Validation => StatusCodes.Status400BadRequest,
-            _ => StatusCodes.Status500InternalServerError
+            Title = firstError.Description,
+            Status = statusCode,
+            Detail = firstError.Description,
+            Instance = HttpContext?.Request?.Path
         };
 
-        return Problem(statusCode: statusCode, title: firstError.Description);
+        return new ObjectResult(problemDetails)
+        {
+            StatusCode = statusCode
+        };
+    }
+
+    private int MapErrorToStatusCode(Error error)
+    {
+        return error.Type switch
+        {
+            ErrorType.NotFound => StatusCodes.Status404NotFound,
+            ErrorType.Validation => StatusCodes.Status400BadRequest,
+            ErrorType.Conflict => StatusCodes.Status409Conflict,
+            ErrorType.Unexpected => StatusCodes.Status500InternalServerError,
+            _ => StatusCodes.Status500InternalServerError
+        };
     }
 }

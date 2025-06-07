@@ -3,45 +3,95 @@ using Yield.Tracker.Domain.Dto.Investment;
 using Yield.Tracker.Domain.Dto.Validator;
 using Yield.Tracker.Domain.Repositories;
 using Yield.Tracker.Domain.Services;
+using Yield.Tracker.Domain.Dto.Validator.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Yield.Tracker.Application.Services;
 
-public class InvestmentCalculatorService(IQuotationRepository quotationRepository) : IInvestmentCalculatorService
+public class InvestmentCalculatorService(IQuotationRepository quotationRepository, ILogger<InvestmentCalculatorService> logger) : IInvestmentCalculatorService
 {
     public async Task<ErrorOr<InvestmentResponseDto>> CalculateAsync(InvestmentRequestDto investmentRequest)
     {
-        var validation = new InvestmentRequestDtoValidator().Validate(investmentRequest);
-        if(!validation.IsValid)
+        logger.LogInformation("Iniciando cálculo de investimento para: {@InvestmentRequest}", investmentRequest);
+
+        //Validando o objeto recebido na requisição.
+        var validation = new InvestmentRequestDtoValidator().ValidateToErrors(investmentRequest);
+        if (validation is not null)
         {
-            var errors = validation.Errors
-                .Select(e => Error.Validation(e.PropertyName, e.ErrorMessage))
-                .ToList();
-
-            return errors;
+            logger.LogError("Validação falhou para a requisição: {Errors}", validation);
+            return validation;
         }
-
-        var quotations = await quotationRepository.GetByDateRangeAsync(
-            investmentRequest.StartDate.AddDays(1),
+            
+        // Obter todas as cotações necessárias (incluindo a do dia anterior ao período de cálculo)
+        var allQuotations = await quotationRepository.GetByDateRangeAsync(
+            investmentRequest.StartDate.AddDays(-1),
             investmentRequest.EndDate
         );
 
-        if (quotations == null || !quotations.Any())
+        if (allQuotations == null || !allQuotations.Any())
+        {
+            logger.LogError("Nenhuma cotação encontrada para o período de {StartDate} a {EndDate}", investmentRequest.StartDate, investmentRequest.EndDate);
             return Error.Validation("cotacao.NaoEncontrada", "Não foram encontradas cotações no período informado.");
+        }
+            
+        // Ordenar as cotações por data, para garantir um calculo correto
+        var orderedQuotations = allQuotations.OrderBy(q => q.Date).ToList();
 
         decimal accumulatedFactor = 1.0m;
+        decimal updatedValue = investmentRequest.InvestedValue;
+        var currentDate = investmentRequest.StartDate.AddDays(1);
 
-        foreach (var q in quotations)
+        while (currentDate < investmentRequest.EndDate)
         {
-            var dailyFactor = Math.Pow(1 + (double)(q.Rate / 100m), 1.0 / 252.0);
-            var roundedDailyFactor = Math.Round(dailyFactor, 8, MidpointRounding.AwayFromZero);
+            //Pular finais de semana
+            if (currentDate.DayOfWeek == DayOfWeek.Saturday || currentDate.DayOfWeek == DayOfWeek.Sunday)
+            {
+                currentDate = currentDate.AddDays(1);
+                continue;
+            }
 
-            accumulatedFactor *= (decimal)roundedDailyFactor;
+            // Encontrar a cotação do dia útil anterior
+            var previousBusinessDay = GetPreviousBusinessDay(currentDate);
+            var previousQuotation = orderedQuotations.FirstOrDefault(q => q.Date == previousBusinessDay);
+
+            if (previousQuotation == null)
+            {
+                logger.LogError("Cotação não encontrada para o dia anterior {PreviousBusinessDay}", previousBusinessDay);
+                return Error.Validation("cotacao.DiaAnteriorNaoEncontrada", $"Cotação para o dia anterior {previousBusinessDay} não encontrada.");
+            }
+                
+            // Calcular fator diário
+            double dailyRate = (double)previousQuotation.Rate / 100.0;
+            double dailyFactor = Math.Pow(1 + dailyRate, 1.0 / 252.0);
+            decimal roundedDailyFactor = Math.Round((decimal)dailyFactor, 8, MidpointRounding.AwayFromZero);
+
+            // Acumular o fator
+            accumulatedFactor *= roundedDailyFactor;
+
+            currentDate = currentDate.AddDays(1);
         }
 
-        accumulatedFactor = Math.Truncate(accumulatedFactor * 1_0000_0000_0000_0000m) / 1_0000_0000_0000_0000m;
+        // Calcular valor atualizado e truncar para 8 casas decimais
+        updatedValue = TruncateDecimal(investmentRequest.InvestedValue * accumulatedFactor, 8);
 
-        var updatedValue = Math.Truncate(investmentRequest.InvestedValue * accumulatedFactor * 100_000_000m) / 100_000_000m;
+        logger.LogInformation("Fim do cálculo de investimento para: {@InvestmentRequest}", investmentRequest);
 
         return new InvestmentResponseDto(accumulatedFactor, updatedValue);
+    }
+
+    private DateOnly GetPreviousBusinessDay(DateOnly date)
+    {
+        var previousDay = date.AddDays(-1);
+        while (previousDay.DayOfWeek == DayOfWeek.Saturday || previousDay.DayOfWeek == DayOfWeek.Sunday)
+        {
+            previousDay = previousDay.AddDays(-1);
+        }
+        return previousDay;
+    }
+
+    private decimal TruncateDecimal(decimal value, int decimalPlaces)
+    {
+        decimal factor = (decimal)Math.Pow(10, decimalPlaces);
+        return Math.Truncate(value * factor) / factor;
     }
 }

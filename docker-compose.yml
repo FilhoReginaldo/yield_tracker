@@ -9,7 +9,7 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=localhost;Database=investimentos;Username=sqia;Password=sqia123
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=investimentos;Username=sqia;Password=sqia123
     depends_on:
       postgres:
         condition: service_healthy

@@ -11,7 +11,7 @@ public class QuotationRepository(ApplicationDbContext applicationDbContext) : IQ
     public async Task<List<Quotation>> GetByDateRangeAsync(DateOnly startDate, DateOnly endDate) =>
         await applicationDbContext.Quotations
             .AsNoTracking()
-            .Where(q => q.Date >= startDate && q.Date < endDate)
+            .Where(q => q.Date >= startDate && q.Date <= endDate)
             .OrderBy(q => q.Date)
             .ToListAsync();
 }
